@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Connection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-box {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .status {
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .success {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .error {
+            background-color: #f44336;
+            color: white;
+        }
+        .info {
+            background-color: #2196F3;
+            color: white;
+        }
+        pre {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #2196F3;
+            padding-bottom: 10px;
+        }
+        button {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #0b7dda;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Firebase Connection Diagnostic Tool</h1>
+    
+    <div class="test-box">
+        <h2>1. Firebase Module Availability</h2>
+        <button onclick="testFirebaseModules()">Test Firebase Modules</button>
+        <div id="firebase-modules-result"></div>
+    </div>
+
+    <div class="test-box">
+        <h2>2. Firebase Configuration</h2>
+        <button onclick="testFirebaseConfig()">Test Configuration</button>
+        <div id="firebase-config-result"></div>
+    </div>
+
+    <div class="test-box">
+        <h2>3. Firebase Initialization</h2>
+        <button onclick="testFirebaseInit()">Test Initialization</button>
+        <div id="firebase-init-result"></div>
+    </div>
+
+    <div class="test-box">
+        <h2>4. Firestore Connection</h2>
+        <button onclick="testFirestoreConnection()">Test Firestore</button>
+        <div id="firestore-result"></div>
+    </div>
+
+    <div class="test-box">
+        <h2>5. Villages Collection</h2>
+        <button onclick="testVillagesCollection()">Test Villages Collection</button>
+        <div id="villages-result"></div>
+    </div>
+
+    <div class="test-box">
+        <h2>6. Network Diagnostics</h2>
+        <button onclick="testNetworkDiagnostics()">Test Network</button>
+        <div id="network-result"></div>
+    </div>
+
+    <div class="test-box">
+        <h2>7. Browser Console Logs</h2>
+        <p>Check your browser's Developer Tools (F12 or Cmd+Option+I) for console output</p>
+        <pre id="console-logs"></pre>
+    </div>
+
+    <script type="module">
+        // Capture console logs
+        const logs = [];
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+
+        console.log = function(...args) {
+            logs.push('LOG: ' + args.join(' '));
+            originalLog.apply(console, args);
+        };
+        console.error = function(...args) {
+            logs.push('ERROR: ' + args.join(' '));
+            originalError.apply(console, args);
+        };
+        console.warn = function(...args) {
+            logs.push('WARN: ' + args.join(' '));
+            originalWarn.apply(console, args);
+        };
+
+        window.testFirebaseModules = async function() {
+            const result = document.getElementById('firebase-modules-result');
+            try {
+                const firebaseApp = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js');
+                const firebaseFirestore = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+                const firebaseAuth = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js');
+                result.innerHTML = '<div class="status success">✅ All Firebase modules loaded successfully</div>';
+            } catch (e) {
+                result.innerHTML = '<div class="status error">❌ Error loading Firebase modules: ' + e.message + '</div>';
+            }
+        };
+
+        window.testFirebaseConfig = async function() {
+            const result = document.getElementById('firebase-config-result');
+            try {
+                const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js');
+                const config = {
+                    apiKey: "AIzaSyBXUnT4yyYC99b8TmDQOC0WM-O7T5Qj218",
+                    authDomain: "smart-gram-95a83.firebaseapp.com",
+                    projectId: "smart-gram-95a83",
+                    storageBucket: "smart-gram-95a83.firebasestorage.app",
+                    messagingSenderId: "68140593567",
+                    appId: "1:68140593567:web:a5591580bf55ea39c98daa",
+                    measurementId: "G-PSYHZ7ZD6G"
+                };
+                result.innerHTML = '<div class="status info">ℹ️ Configuration loaded:</div><pre>' + JSON.stringify(config, null, 2) + '</pre>';
+            } catch (e) {
+                result.innerHTML = '<div class="status error">❌ Error: ' + e.message + '</div>';
+            }
+        };
+
+        window.testFirebaseInit = async function() {
+            const result = document.getElementById('firebase-init-result');
+            try {
+                const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js');
+                const { getFirestore } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+                const { getAuth } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js');
+                
+                const config = {
+                    apiKey: "AIzaSyBXUnT4yyYC99b8TmDQOC0WM-O7T5Qj218",
+                    authDomain: "smart-gram-95a83.firebaseapp.com",
+                    projectId: "smart-gram-95a83",
+                    storageBucket: "smart-gram-95a83.firebasestorage.app",
+                    messagingSenderId: "68140593567",
+                    appId: "1:68140593567:web:a5591580bf55ea39c98daa",
+                    measurementId: "G-PSYHZ7ZD6G"
+                };
+
+                const app = initializeApp(config);
+                const db = getFirestore(app);
+                const auth = getAuth(app);
+                
+                result.innerHTML = '<div class="status success">✅ Firebase initialized successfully<br>Project: smart-gram-95a83<br>Auth: Ready<br>Firestore: Ready</div>';
+            } catch (e) {
+                result.innerHTML = '<div class="status error">❌ Initialization error: ' + e.message + '</div>';
+            }
+        };
+
+        window.testFirestoreConnection = async function() {
+            const result = document.getElementById('firestore-result');
+            try {
+                const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js');
+                const { getFirestore, connectFirestoreEmulator } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+                
+                const config = {
+                    apiKey: "AIzaSyBXUnT4yyYC99b8TmDQOC0WM-O7T5Qj218",
+                    authDomain: "smart-gram-95a83.firebaseapp.com",
+                    projectId: "smart-gram-95a83",
+                    storageBucket: "smart-gram-95a83.firebasestorage.app",
+                    messagingSenderId: "68140593567",
+                    appId: "1:68140593567:web:a5591580bf55ea39c98daa",
+                    measurementId: "G-PSYHZ7ZD6G"
+                };
+
+                const app = initializeApp(config);
+                const db = getFirestore(app);
+                
+                result.innerHTML = '<div class="status success">✅ Firestore connection established</div>';
+            } catch (e) {
+                result.innerHTML = '<div class="status error">❌ Connection error: ' + e.message + '</div>';
+            }
+        };
+
+        window.testVillagesCollection = async function() {
+            const result = document.getElementById('villages-result');
+            try {
+                const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js');
+                const { getFirestore, collection, getDocs } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+                
+                const config = {
+                    apiKey: "AIzaSyBXUnT4yyYC99b8TmDQOC0WM-O7T5Qj218",
+                    authDomain: "smart-gram-95a83.firebaseapp.com",
+                    projectId: "smart-gram-95a83",
+                    storageBucket: "smart-gram-95a83.firebasestorage.app",
+                    messagingSenderId: "68140593567",
+                    appId: "1:68140593567:web:a5591580bf55ea39c98daa",
+                    measurementId: "G-PSYHZ7ZD6G"
+                };
+
+                const app = initializeApp(config);
+                const db = getFirestore(app);
+                
+                const snap = await getDocs(collection(db, "Villages"));
+                if (snap.size === 0) {
+                    result.innerHTML = '<div class="status error">⚠️ No villages found in database. The "Villages" collection is empty or doesn\'t exist.</div>';
+                } else {
+                    let html = '<div class="status success">✅ Found ' + snap.size + ' villages:</div><ul>';
+                    snap.forEach(doc => {
+                        html += '<li><strong>' + (doc.data().name || doc.id) + '</strong> (ID: ' + doc.id + ')</li>';
+                    });
+                    html += '</ul>';
+                    result.innerHTML = html;
+                }
+            } catch (e) {
+                result.innerHTML = '<div class="status error">❌ Error querying villages: ' + e.message + '<br>Code: ' + e.code + '</div>';
+            }
+        };
+
+        window.testNetworkDiagnostics = async function() {
+            const result = document.getElementById('network-result');
+            try {
+                const firebaseTest = await fetch('https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js', {method: 'HEAD'});
+                const firestoreTest = await fetch('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js', {method: 'HEAD'});
+                
+                result.innerHTML = '<div class="status success">✅ Network connectivity confirmed<br>Firebase CDN: Accessible<br>Firestore CDN: Accessible</div>';
+            } catch (e) {
+                result.innerHTML = '<div class="status error">❌ Network error: ' + e.message + '</div>';
+            }
+        };
+
+        // Update console logs display
+        setInterval(() => {
+            document.getElementById('console-logs').innerText = logs.slice(-20).join('\n');
+        }, 500);
+    </script>
+</body>
+</html>

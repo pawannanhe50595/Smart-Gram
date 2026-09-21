@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>Dashboard - SmartGram Platform</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root { 
+            --primary-color: #2E7D32; 
+            --primary-dark: #1B5E20; 
+            --secondary-color: #FF9800; 
+            --secondary-dark: #E65100;
+            --bg-light: #f4f7f6; 
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.08); 
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-light); color: #212121; }
+        
+        /* NAVBAR - SYNCHRONIZED */
+        .navbar { background-color: var(--primary-color); position: sticky; top: 0; z-index: 2000; box-shadow: 0 4px 12px rgba(0,0,0,0.1); line-height: 1.2; }
+        .nav-container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0.5rem 20px; }
+        
+        .nav-brand { 
+            text-decoration: none; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            color: white; 
+            font-size: 1.8rem; 
+            font-weight: 800; 
+            letter-spacing: 0.5px;
+        }
+        
+        .nav-logo { 
+            height: 65px; 
+            width: auto; 
+            object-fit: contain; 
+            filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .nav-menu { display: flex; list-style: none; gap: 2rem; align-items: center; }
+        .nav-link { color: white; text-decoration: none; font-weight: 500; transition: 0.3s; position: relative; padding-bottom: 5px; }
+        .nav-link.active::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px; background-color: var(--secondary-color); }
+        
+        /* ACCOUNT DROPDOWN STYLES (RECTIFIED) */
+        .auth-wrapper { position: relative; padding: 10px 0; }
+        
+        #auth-btn { 
+            background-color: var(--secondary-color); color: white !important; 
+            padding: 10px 28px; border-radius: 30px; font-weight: 700; 
+            text-decoration: none; cursor: pointer; transition: 0.3s; 
+            display: inline-flex; align-items: center; gap: 8px;
+            visibility: hidden; 
+        }
+        #auth-btn:hover { background-color: var(--secondary-dark); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4); }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: white;
+            min-width: 240px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 0;
+            z-index: 3000;
+            border: 1px solid #eee;
+            overflow: hidden;
+        }
+
+        /* Hover bridge fix */
+        .dropdown-menu::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 0;
+            width: 100%;
+            height: 20px;
+            background: transparent;
+        }
+
+        .auth-wrapper:hover .dropdown-menu { display: block; }
+
+        .dropdown-header { padding: 20px; border-bottom: 1px solid #eee; background-color: #fcfcfc; text-align: left; }
+        .user-name { display: block; font-weight: 700; color: var(--primary-dark); font-size: 1.05rem; margin-bottom: 4px; }
+        .user-email { display: block; font-size: 0.85rem; color: #757575; word-break: break-all; }
+
+        .dropdown-item {
+            display: flex; align-items: center; gap: 12px; padding: 15px 20px;
+            color: #d32f2f; text-decoration: none; font-weight: 700;
+            transition: 0.2s; cursor: pointer; border: none; width: 100%; background: none;
+            font-size: 1rem;
+        }
+        .dropdown-item:hover { background-color: #fff5f5; color: #b71c1c; }
+
+        .dashboard-header { background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); color: white; padding: 40px 20px; text-align: center; }
+        .selector-bar { background: white; padding: 20px; text-align: center; border-bottom: 1px solid #ddd; }
+        select { padding: 8px 18px; border-radius: 20px; border: 2px solid var(--primary-color); outline: none; font-weight: 600; cursor: pointer; }
+
+        .dashboard-grid { display: grid; grid-template-columns: 420px 1fr; gap: 25px; max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 20px; }
+        .card h3 { color: var(--primary-color); font-size: 1.15rem; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+        .stat-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f9f9f9; align-items: center; }
+        .stat-value { font-weight: 700; color: var(--primary-dark); text-align: right; max-width: 60%; }
+
+        #map { 
+            height: 600px; 
+            width: 100%;
+            border-radius: 12px; 
+            border: 1px solid #ccc; 
+            background-color: #e5e3df; 
+            z-index: 1; 
+            display: block !important;
+        }
+        
+        .charts-container { max-width: 1200px; margin: 0 auto 50px; padding: 0 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+        .full-width { grid-column: span 2; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-brand">
+                <img src="/static/images/logo.png" alt="Logo" class="nav-logo">
+                <span>SmartGram</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="dashboard.html" class="nav-link active">Dashboard</a></li>
+                <li><a href="features.html" class="nav-link">Features</a></li>
+                <li><a href="about.html" class="nav-link">About</a></li>
+                
+                <li class="auth-wrapper">
+                    <a href="login.html" id="auth-btn" class="btn-pill">Login</a>
+                    <div id="account-dropdown" class="dropdown-menu">
+                        <div class="dropdown-header">
+                            <span id="user-display-name" class="user-name">Loading...</span>
+                            <span id="user-display-email" class="user-email">...</span>
+                        </div>
+                        <button id="logout-trigger" class="dropdown-item">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="dashboard-header">
+        <h1>Village Digital Twin Dashboard</h1>
+        <p>Interactive Planning & AI Resource Prediction Platform</p>
+    </header>
+
+    <section class="selector-bar">
+        <label style="font-weight: bold; margin-right: 10px;">Select Target Village:</label>
+        <select id="village-selector"><option value="">-- Loading --</option></select>
+    </section>
+
+    <div id="main-content" style="display: none;">
+        <div class="dashboard-grid">
+            <aside>
+                <div class="card">
+                    <h3>Village Overview</h3>
+                    <div class="stat-item"><span>Population</span><span id="v-pop" class="stat-value">--</span></div>
+                    <div class="stat-item"><span>Total Area</span><span id="v-area" class="stat-value">--</span></div>
+                    <div class="stat-item"><span>Houses</span><span id="v-houses" class="stat-value">--</span></div>
+                    <div class="stat-item"><span>Main Crops</span><span id="v-crops" class="stat-value">--</span></div>
+                    <div class="stat-item"><span>Income Sources</span><span id="v-income" class="stat-value">--</span></div>
+                </div>
+                <div class="card">
+                    <h3>Infrastructure</h3>
+                    <div class="stat-item"><span>Hall</span><span id="v-hall" class="stat-value">--</span></div>
+                    <div class="stat-item"><span>Health</span><span id="v-health" class="stat-value">--</span></div>
+                    <div class="stat-item"><span>Banks</span><span id="v-bank" class="stat-value">--</span></div>
+                </div>
+                <div class="card">
+                    <h3>Utilities</h3>
+                    <div class="stat-item"><span>Borewells</span><span id="v-bore" class="stat-value">--</span></div>
+                    <div class="stat-item"><span>Power (Ag)</span><span id="v-power-ag" class="stat-value">--</span></div>
+                    <div class="stat-item"><span>Power (Dom)</span><span id="v-power-dom" class="stat-value">--</span></div>
+                </div>
+            </aside>
+            <main><div id="map"></div></main>
+        </div>
+
+        <div class="charts-container">
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h3>AI Growth Projection</h3>
+                    <select id="year-selector" style="font-size: 0.8rem; padding: 4px 10px;">
+                        <option value="10">10 Years</option>
+                        <option value="30" selected>30 Years</option>
+                        <option value="50">50 Years</option>
+                        <option value="100">100 Years</option>
+                    </select>
+                </div>
+                <canvas id="popBarChart"></canvas>
+            </div>
+            <div class="card"><h3>Water Mix</h3><canvas id="waterChart"></canvas></div>
+            <div class="card full-width"><h3>Predicted Resource Demand (L/Day)</h3><canvas id="waterLineChart"></canvas></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db, auth } from "/static/js/firebase-config.js";
+        import { collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const vSel = document.getElementById('village-selector');
+        const ySel = document.getElementById('year-selector');
+        const main = document.getElementById('main-content');
+        const authBtn = document.getElementById('auth-btn');
+        const dropdown = document.getElementById('account-dropdown');
+        const nameLabel = document.getElementById('user-display-name');
+        const emailLabel = document.getElementById('user-display-email');
+        const logoutTrigger = document.getElementById('logout-trigger');
+
+        let map = null; 
+        let wChart, pChart, wlChart, cur;
+        let useFirebase = false;
+
+        // Load villages from API immediately (no auth required)
+        async function loadVillagesFromAPI() {
+            try {
+                console.log("📍 Fetching villages from backend API...");
+                const response = await fetch('/api/villages');
+                const data = await response.json();
+                console.log("✅ Villages fetched from API:", data.villages.length, "found");
+                
+                vSel.innerHTML = '<option value="">-- Select Village --</option>';
+                data.villages.forEach(village => {
+                    let opt = document.createElement('option');
+                    opt.value = village.id;
+                    opt.text = village.name;
+                    vSel.add(opt);
+                });
+            } catch (e) {
+                console.error("❌ API Error:", e);
+                vSel.innerHTML = '<option value="">-- Error loading villages --</option>';
+            }
+        }
+
+        // Load villages from Firestore (requires auth)
+        async function loadVillagesFromFirestore() {
+            try {
+                console.log("📍 Fetching villages from Firestore...");
+                const snap = await getDocs(collection(db, "Villages"));
+                console.log("✅ Villages fetched from Firestore:", snap.size, "found");
+                
+                if (snap.size === 0) {
+                    console.warn("⚠️ Firestore collection is empty, falling back to API");
+                    return false;
+                }
+                
+                vSel.innerHTML = '<option value="">-- Select Village --</option>';
+                snap.forEach(d => {
+                    let opt = document.createElement('option');
+                    opt.value = d.id;
+                    opt.text = d.data().name || d.id;
+                    vSel.add(opt);
+                });
+                return true;
+            } catch (e) {
+                console.error("❌ Firestore error:", e);
+                console.warn("Falling back to API");
+                return false;
+            }
+        }
+
+        // Load on page load
+        loadVillagesFromAPI();
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const username = user.displayName || user.email.split('@')[0];
+                authBtn.innerHTML = `<i class="fas fa-user-circle"></i> Account`;
+                authBtn.href = "javascript:void(0)";
+                nameLabel.innerText = username;
+                emailLabel.innerText = user.email;
+                
+                logoutTrigger.onclick = (e) => {
+                    if (confirm("Warning: You are about to log out of SmartGram. Do you want to proceed?")) {
+                        signOut(auth).then(() => { window.location.href = "/login"; });
+                    }
+                };
+
+                // Try Firestore, fall back to API
+                const firebaseOk = await loadVillagesFromFirestore();
+                if (!firebaseOk) {
+                    useFirebase = false;
+                    loadVillagesFromAPI();
+                } else {
+                    useFirebase = true;
+                }
+            } else {
+                authBtn.innerHTML = "Login";
+                authBtn.href = "/login";
+                dropdown.style.display = "none";
+            }
+            authBtn.style.visibility = "visible";
+        });
+
+        vSel.onchange = async () => {
+            const id = vSel.value; if (!id) return;
+            
+            try {
+                if (useFirebase) {
+                    // Try Firestore first if authenticated
+                    const snap = await getDoc(doc(db, "Villages", id));
+                    if (snap.exists()) {
+                        cur = snap.data();
+                    } else {
+                        console.warn("Village not in Firestore, trying API...");
+                        const response = await fetch(`/api/villages/${id}`);
+                        cur = await response.json();
+                    }
+                } else {
+                    // Use API for village data
+                    console.log("📍 Fetching village from API...");
+                    const response = await fetch(`/api/villages/${id}`);
+                    if (!response.ok) throw new Error("Village not found");
+                    cur = await response.json();
+                }
+                
+                main.style.display = 'block';
+                
+                document.getElementById('v-pop').innerText = cur.population || '0';
+                document.getElementById('v-area').innerText = cur.totalArea || '--';
+                document.getElementById('v-houses').innerText = cur.houses || '0';
+                document.getElementById('v-crops').innerText = cur.mainCrops?.join(", ") || "--";
+                document.getElementById('v-income').innerText = cur.IncomesSources?.join(", ") || "--";
+                document.getElementById('v-hall').innerText = cur.communityHall || '0';
+                document.getElementById('v-health').innerText = cur.healthFacility || '0';
+                document.getElementById('v-bank').innerText = cur.bank || "0";
+                document.getElementById('v-bore').innerText = cur.WaterSupply?.boreWell || "0";
+                
+                if (cur['Power Supply']) {
+                    document.getElementById('v-power-ag').innerText = cur['Power Supply'].agricultural || "--";
+                    document.getElementById('v-power-dom').innerText = cur['Power Supply'].domestic || "--";
+                }
+
+                setTimeout(() => {
+                    renderMap(cur); 
+                    renderAICharts(cur);
+                }, 100);
+            } catch (e) {
+                console.error("❌ Error loading village:", e);
+                main.style.display = 'none';
+            }
+        };
+
+        ySel.onchange = () => renderAICharts(cur);
+
+        function renderMap(data) {
+            let lat = 21.08266; let lng = 78.60331; 
+            if (data.location && typeof data.location === 'string') {
+                const parts = data.location.replace(/[\[\]°NSEW]/g, '').trim().split(',');
+                if (parts.length === 2) { 
+                    lat = parseFloat(parts[0].trim()); 
+                    lng = parseFloat(parts[1].trim()); 
+                }
+            }
+            if (map !== null) { map.remove(); map = null; }
+            map = L.map('map').setView([lat, lng], 16);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+            L.marker([lat, lng]).addTo(map).bindPopup(`<b>${data.name}</b>`).openPopup();
+            setTimeout(() => { 
+                map.invalidateSize();
+                window.dispatchEvent(new Event('resize'));
+            }, 400);
+        }
+
+        function renderAICharts(data) {
+            if (!data) return;
+            const targetYears = parseInt(ySel.value);
+            const step = targetYears / 9;
+            const l = []; const pD = []; const wD = [];
+            for(let i = 0; i < 10; i++) {
+                const y = 2026 + (i * step); 
+                const p = Math.round(data.population * Math.pow(1.015, i * step));
+                l.push(Math.round(y).toString()); pD.push(p); wD.push(p * 135);
+            }
+            const wCtx = document.getElementById('waterChart').getContext('2d');
+            if (wChart) wChart.destroy();
+            wChart = new Chart(wCtx, { type: 'doughnut', data: { labels: ['Borewells', 'Wells', 'Lakes', 'Other'], datasets: [{ data: data.WaterSupply ? [data.WaterSupply.boreWell, data.WaterSupply.well, data.WaterSupply.lake, data.WaterSupply.own] : [0,0,0,0], backgroundColor: ['#E91E63', '#9C27B0', '#00BCD4', '#FFEB3B'] }] } });
+            const pCtx = document.getElementById('popBarChart').getContext('2d');
+            if (pChart) pChart.destroy();
+            pChart = new Chart(pCtx, { type: 'bar', data: { labels: l, datasets: [{ label: 'Predicted Population', data: pD, backgroundColor: '#3F51B5', borderRadius: 4 }] } });
+            const wlCtx = document.getElementById('waterLineChart').getContext('2d');
+            if (wlChart) wlChart.destroy();
+            wlChart = new Chart(wlCtx, { type: 'line', data: { labels: l, datasets: [{ label: 'Water Demand (L)', data: wD, borderColor: '#FF5722', fill: true, backgroundColor: 'rgba(255,87,34,0.1)', tension: 0.4 }] } });
+        }
+    </script>
+</body>
+</html>

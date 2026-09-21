@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartGram - Home</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #2E7D32;
+            --primary-dark: #1B5E20;
+            --secondary-color: #FF9800;
+            --secondary-dark: #E65100;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--primary-color); color: white; overflow-x: hidden; }
+
+        /* NAVBAR */
+        .navbar { background-color: var(--primary-color); position: sticky; top: 0; z-index: 2000; box-shadow: 0 4px 12px rgba(0,0,0,0.1); line-height: 1.2; }
+        .nav-container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0.5rem 20px; }
+        
+        .nav-brand { 
+            text-decoration: none; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            color: white; 
+            font-size: 1.8rem; 
+            font-weight: 800; 
+            letter-spacing: 0.5px;
+        }
+        
+        .nav-logo { 
+            height: 65px; 
+            width: auto; 
+            object-fit: contain; 
+            filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .nav-menu { display: flex; list-style: none; gap: 2rem; align-items: center; }
+        .nav-link { color: white; text-decoration: none; font-weight: 500; transition: 0.3s; position: relative; padding-bottom: 5px; }
+        .nav-link.active::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px; background-color: var(--secondary-color); }
+        
+        /* ACCOUNT DROPDOWN STYLES (RECTIFIED) */
+        .auth-wrapper { position: relative; padding: 10px 0; }
+        
+        .btn-pill { 
+            background-color: var(--secondary-color); color: white !important; 
+            padding: 10px 28px; border-radius: 30px; font-weight: 700; 
+            text-decoration: none; cursor: pointer; transition: 0.3s; 
+            display: inline-flex; align-items: center; gap: 8px;
+            visibility: hidden; 
+        }
+        .btn-pill:hover { background-color: var(--secondary-dark); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4); }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: white;
+            min-width: 240px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 0;
+            z-index: 3000;
+            border: 1px solid #eee;
+            overflow: hidden;
+        }
+
+        /* Hover bridge to fix the disappearing menu issue */
+        .dropdown-menu::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 0;
+            width: 100%;
+            height: 20px;
+            background: transparent;
+        }
+
+        .auth-wrapper:hover .dropdown-menu { display: block; }
+
+        .dropdown-header { padding: 20px; border-bottom: 1px solid #eee; background-color: #fcfcfc; text-align: left; }
+        .user-name { display: block; font-weight: 700; color: var(--primary-dark); font-size: 1.05rem; margin-bottom: 4px; }
+        .user-email { display: block; font-size: 0.85rem; color: #757575; word-break: break-all; }
+
+        .dropdown-item {
+            display: flex; align-items: center; gap: 12px; padding: 15px 20px;
+            color: #d32f2f; text-decoration: none; font-weight: 700;
+            transition: 0.2s; cursor: pointer; border: none; width: 100%; background: none;
+            font-size: 1rem;
+        }
+        .dropdown-item:hover { background-color: #fff5f5; color: #b71c1c; }
+
+        /* HERO SECTION */
+        .hero { display: grid; grid-template-columns: 1fr 1fr; align-items: center; min-height: 85vh; padding: 0 10%; background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); }
+        .hero-content h1 { font-size: 4rem; margin-bottom: 15px; line-height: 1.1; font-weight: 800; }
+        .hero-content p { font-size: 1.2rem; margin-bottom: 40px; opacity: 0.9; max-width: 550px; }
+        
+        .globe-container { width: 100%; height: 500px; position: relative; }
+        #globeCanvas { width: 100%; height: 100%; cursor: grab; }
+
+        /* STATS */
+        .stats { padding: 60px 20px; background: white; color: #212121; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
+        .stat-card { text-align: center; padding: 30px; border-radius: 15px; background: #f4f7f6; border: 1px solid #eee; }
+        .stat-number { font-size: 2.5rem; font-weight: 800; color: var(--primary-color); }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-brand">
+                <img src="/static/images/logo.png" alt="Logo" class="nav-logo">
+                <span>SmartGram</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link active">Home</a></li>
+                <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="features.html" class="nav-link">Features</a></li>
+                <li><a href="about.html" class="nav-link">About</a></li>
+                
+                <li class="auth-wrapper">
+                    <a href="login.html" id="auth-btn" class="btn-pill">Login</a>
+                    <div id="account-dropdown" class="dropdown-menu">
+                        <div class="dropdown-header">
+                            <span id="user-display-name" class="user-name">Loading...</span>
+                            <span id="user-display-email" class="user-email">...</span>
+                        </div>
+                        <button id="logout-trigger" class="dropdown-item">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>SmartGram</h1>
+            <p>A Comprehensive Village Digital Twin Platform: Interactive 3D visualization and AI analytics for multi-village rural development.</p>
+            <a href="dashboard.html" class="btn-pill" style="visibility: visible !important;">Launch Dashboard</a>
+        </div>
+        <div class="globe-container" id="globeParent"><canvas id="globeCanvas"></canvas></div>
+    </section>
+
+    <section class="stats">
+        <div class="stats-grid">
+            <div class="stat-card"><div class="stat-number">Platform</div><div>Village Agnostic</div></div>
+            <div class="stat-card"><div class="stat-number">AI</div><div>Demand Projection</div></div>
+            <div class="stat-card"><div class="stat-number">GIS</div><div>Real-time Mapping</div></div>
+        </div>
+    </section>
+
+    <script type="module">
+        import { auth } from "/static/js/firebase-config.js";
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const authBtn = document.getElementById('auth-btn');
+        const dropdown = document.getElementById('account-dropdown');
+        const nameLabel = document.getElementById('user-display-name');
+        const emailLabel = document.getElementById('user-display-email');
+        const logoutTrigger = document.getElementById('logout-trigger');
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Get the actual username from Firebase or use email prefix
+                const username = user.displayName || user.email.split('@')[0];
+                
+                authBtn.innerHTML = `<i class="fas fa-user-circle"></i> Account`;
+                authBtn.href = "javascript:void(0)";
+                
+                nameLabel.innerText = username;
+                emailLabel.innerText = user.email;
+                
+                logoutTrigger.onclick = (e) => {
+                    if (confirm("Warning: You are about to log out of SmartGram. Do you want to proceed?")) {
+                        signOut(auth).then(()=>window.location.reload()); 
+                    }
+                };
+            } else {
+                authBtn.innerHTML = `Login`; 
+                authBtn.href = "login.html";
+                dropdown.style.display = "none";
+            }
+            authBtn.style.visibility = "visible";
+        });
+    </script>
+
+    <script>
+        const parent = document.getElementById('globeParent');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, parent.clientWidth / parent.clientHeight, 0.1, 1000);
+        camera.position.z = 2.8;
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('globeCanvas'), antialias: true, alpha: true });
+        renderer.setSize(parent.clientWidth, parent.clientHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+
+        const geometry = new THREE.SphereGeometry(1, 64, 64);
+        const material = new THREE.MeshPhongMaterial({ color: 0x224488, shininess: 5 });
+        const earth = new THREE.Mesh(geometry, material);
+        scene.add(earth);
+
+        const glow = new THREE.Mesh(new THREE.SphereGeometry(1.05, 64, 64), new THREE.MeshBasicMaterial({ color: 0x4CAF50, transparent: true, opacity: 0.1, side: THREE.BackSide }));
+        scene.add(glow);
+
+        const loader = new THREE.TextureLoader();
+        loader.crossOrigin = "Anonymous"; 
+        loader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg', (tex) => {
+            earth.material.map = tex; earth.material.color.set(0xffffff); earth.material.needsUpdate = true;
+        });
+
+        scene.add(new THREE.DirectionalLight(0xffffff, 1).position.set(5, 3, 5));
+        scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+
+        function animate() { requestAnimationFrame(animate); earth.rotation.y += 0.002; renderer.render(scene, camera); }
+        window.addEventListener('resize', () => {
+            camera.aspect = parent.clientWidth / parent.clientHeight; camera.updateProjectionMatrix();
+            renderer.setSize(parent.clientWidth, parent.clientHeight);
+        });
+        animate();
+    </script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - SmartGram</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary-color: #2E7D32; --secondary-color: #FF9800; --bg-light: #f4f7f6; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-light); }
+
+        .navbar { background-color: var(--primary-color); position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.1); line-height: 1.2; }
+        .nav-container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0.8rem 20px; }
+        .nav-brand { color: white; font-size: 1.6rem; font-weight: bold; text-decoration: none; }
+        .nav-menu { display: flex; list-style: none; gap: 2rem; align-items: center; }
+        .nav-link { color: white; text-decoration: none; font-weight: 500; }
+        
+        #auth-btn { 
+            background-color: var(--secondary-color); color: white !important; 
+            padding: 10px 28px; border-radius: 30px; font-weight: 700; 
+            text-decoration: none; visibility: hidden; /* FLICKER FIX */
+        }
+
+        .auth-container { display: flex; justify-content: center; align-items: center; min-height: 80vh; }
+        .auth-card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 100%; max-width: 400px; }
+        .input-group { margin-bottom: 20px; }
+        .input-group input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; outline: none; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-brand">SmartGram</a>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="login.html" id="auth-btn" class="btn-pill">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <h2 style="text-align: center; margin-bottom: 25px; color: var(--primary-color);">Create Account</h2>
+            <form id="register-form" onsubmit="return false;">
+                <div class="input-group"><input type="text" id="reg-username" placeholder="Full Name" required></div>
+                <div class="input-group"><input type="email" id="reg-email" placeholder="Email" required></div>
+                <div class="input-group"><input type="password" id="reg-password" placeholder="Password" required></div>
+                <button type="submit" class="btn-pill" style="background:var(--secondary-color); color:white; border:none; padding:10px; width:100%; border-radius:30px; font-weight:bold; cursor:pointer;">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db } from "/static/js/firebase-config.js";
+        import { createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const btn = document.getElementById('auth-btn');
+        onAuthStateChanged(auth, (u) => {
+            if (u) {
+                btn.innerHTML = "Logout";
+                btn.onclick = (e) => { e.preventDefault(); signOut(auth); };
+            } else {
+                btn.innerHTML = "Login";
+                btn.href = "login.html";
+            }
+            btn.style.visibility = "visible"; // REVEAL FIX
+        });
+
+        document.getElementById('register-form').addEventListener('submit', async () => {
+            const email = document.getElementById('reg-email').value;
+            const pass = document.getElementById('reg-password').value;
+            const name = document.getElementById('reg-username').value;
+            try {
+                const cred = await createUserWithEmailAndPassword(auth, email, pass);
+                await setDoc(doc(db, "Users", cred.user.uid), { username: name, email: email, createdAt: new Date() });
+                alert("Success!"); window.location.href = "login.html";
+            } catch (e) { alert(e.message); }
+        });
+    </script>
+</body>
+</html>

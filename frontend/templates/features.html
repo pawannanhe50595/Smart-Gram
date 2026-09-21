@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>Features - SmartGram</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2E7D32;
+            --primary-dark: #1B5E20;
+            --primary-light: #4CAF50;
+            --secondary-color: #FF9800;
+            --secondary-dark: #E65100;
+            --text-dark: #212121;
+            --bg-light: #f4f7f6;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { line-height: 1.6; color: var(--text-dark); background-color: white; }
+
+        /* NAVBAR - SYNCHRONIZED */
+        .navbar { background-color: var(--primary-color); position: sticky; top: 0; z-index: 2000; box-shadow: 0 4px 12px rgba(0,0,0,0.1); line-height: 1.2; }
+        .nav-container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0.5rem 20px; }
+        
+        .nav-brand { 
+            text-decoration: none; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            color: white; 
+            font-size: 1.8rem; 
+            font-weight: 800; 
+            letter-spacing: 0.5px;
+        }
+        
+        .nav-logo { 
+            height: 65px; 
+            width: auto; 
+            object-fit: contain; 
+            filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .nav-menu { display: flex; list-style: none; gap: 2rem; align-items: center; }
+        .nav-link { color: white; text-decoration: none; font-weight: 500; transition: 0.3s; position: relative; padding-bottom: 5px; }
+        .nav-link.active::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px; background-color: var(--secondary-color); }
+
+        /* ACCOUNT DROPDOWN STYLES (RECTIFIED) */
+        .auth-wrapper { position: relative; padding: 10px 0; }
+        
+        .btn-pill { 
+            background-color: var(--secondary-color); color: white !important; 
+            padding: 10px 28px; border-radius: 30px; font-weight: 700; 
+            text-decoration: none; cursor: pointer; transition: 0.3s; 
+            display: inline-flex; align-items: center; gap: 8px;
+            visibility: hidden; 
+        }
+        .btn-pill:hover { background-color: var(--secondary-dark); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4); }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: white;
+            min-width: 240px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 0;
+            z-index: 3000;
+            border: 1px solid #eee;
+            overflow: hidden;
+        }
+
+        /* Hover bridge fix */
+        .dropdown-menu::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 0;
+            width: 100%;
+            height: 20px;
+            background: transparent;
+        }
+
+        .auth-wrapper:hover .dropdown-menu { display: block; }
+
+        .dropdown-header { padding: 20px; border-bottom: 1px solid #eee; background-color: #fcfcfc; text-align: left; }
+        .user-name { display: block; font-weight: 700; color: var(--primary-dark); font-size: 1.05rem; margin-bottom: 4px; }
+        .user-email { display: block; font-size: 0.85rem; color: #757575; word-break: break-all; }
+
+        .dropdown-item {
+            display: flex; align-items: center; gap: 12px; padding: 15px 20px;
+            color: #d32f2f; text-decoration: none; font-weight: 700;
+            transition: 0.2s; cursor: pointer; border: none; width: 100%; background: none;
+            font-size: 1rem;
+        }
+        .dropdown-item:hover { background-color: #fff5f5; color: #b71c1c; }
+
+        /* FEATURES CONTENT */
+        .page-header { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: white; padding: 60px 20px; text-align: center; }
+        .page-header h1 { font-size: 2.8rem; margin-bottom: 15px; font-weight: 700; }
+        .features-page { padding: 80px 20px; background-color: white; }
+        .features-intro { text-align: center; margin-bottom: 60px; }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto; }
+        .feature-card { background-color: #F9F9F9; padding: 30px; border-radius: 8px; text-align: center; transition: 0.3s; box-shadow: var(--shadow); }
+        .feature-icon { font-size: 3.5rem; color: var(--primary-light); margin-bottom: 20px; }
+        .feature-detail-item { background-color: white; padding: 25px; margin: 20px auto; max-width: 1200px; border-left: 5px solid var(--primary-light); border-radius: 4px; box-shadow: var(--shadow); }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-brand">
+                <img src="/static/images/logo.png" alt="Logo" class="nav-logo">
+                <span>SmartGram</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="features.html" class="nav-link active">Features</a></li>
+                <li><a href="about.html" class="nav-link">About</a></li>
+                
+                <li class="auth-wrapper">
+                    <a href="login.html" id="auth-btn" class="btn-pill">Login</a>
+                    <div id="account-dropdown" class="dropdown-menu">
+                        <div class="dropdown-header">
+                            <span id="user-display-name" class="user-name">Loading...</span>
+                            <span id="user-display-email" class="user-email">...</span>
+                        </div>
+                        <button id="logout-trigger" class="dropdown-item">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="page-header">
+        <h1>SmartGram Features</h1>
+        <p>Comprehensive tools for rural village development analysis and prediction</p>
+    </div>
+
+    <section class="features-page">
+        <div class="features-intro">
+            <h2>Powerful Features for Development Analytics</h2>
+            <p>SmartGram provides a comprehensive suite of tools to visualize, analyze, and predict village development trends.</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card"><div class="feature-icon"><i class="fas fa-map-location-dot"></i></div><h3>Interactive Map</h3><p>Digital Twin visualization with real-time data markers.</p></div>
+            <div class="feature-card"><div class="feature-icon"><i class="fas fa-chart-line"></i></div><h3>Data Visualization</h3><p>Rich dashboards displaying literacy, water, and population trends.</p></div>
+            <div class="feature-card"><div class="feature-icon"><i class="fas fa-brain"></i></div><h3>AI Predictions</h3><p>Predict resource demand and infrastructure needs for the next 30 years.</p></div>
+            <div class="feature-card"><div class="feature-icon"><i class="fas fa-balance-scale"></i></div><h3>Gap Analysis</h3><p>Identification of development gaps across villages.</p></div>
+        </div>
+
+        <div style="margin-top: 60px;">
+            <div class="feature-detail-item"><h4>🗺️ GIS Precision</h4><p>Visualize village infrastructure and area data with geographic accuracy.</p></div>
+            <div class="feature-detail-item"><h4>🤖 AI impact Analysis</h4><p>Calculate future water demand based on projected population growth automatically.</p></div>
+        </div>
+    </section>
+
+    <script type="module">
+        import { auth } from "{{ url_for('static', filename='js/firebase-config.js') }}";
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const authBtn = document.getElementById('auth-btn');
+        const dropdown = document.getElementById('account-dropdown');
+        const nameLabel = document.getElementById('user-display-name');
+        const emailLabel = document.getElementById('user-display-email');
+        const logoutTrigger = document.getElementById('logout-trigger');
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Get username from Firebase or email prefix
+                const username = user.displayName || user.email.split('@')[0];
+                
+                authBtn.innerHTML = `<i class="fas fa-user-circle"></i> Account`;
+                authBtn.href = "javascript:void(0)";
+                
+                nameLabel.innerText = username;
+                emailLabel.innerText = user.email;
+                
+                logoutTrigger.onclick = (e) => {
+                    if (confirm("Warning: You are about to log out of SmartGram. Do you want to proceed?")) {
+                        signOut(auth).then(() => window.location.reload()); 
+                    }
+                };
+            } else {
+                authBtn.innerHTML = `Login`; 
+                authBtn.href = "login.html";
+                dropdown.style.display = "none";
+            }
+            authBtn.style.visibility = "visible";
+        });
+    </script>
+</body>
+</html>

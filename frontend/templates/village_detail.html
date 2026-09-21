@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ village.name }} - SmartGram</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>{{ village.name }}</h1>
+
+        <div class="village-details">
+            <div class="detail-section">
+                <h2>Basic Information</h2>
+                <p><strong>Region:</strong> {{ village.region }}</p>
+                <p><strong>Population:</strong> {{ village.population }}</p>
+                <p><strong>Literacy Rate:</strong> {{ village.literacy_rate }}%</p>
+            </div>
+
+            <div class="detail-section">
+                <h2>Infrastructure</h2>
+                <p><strong>Water Access:</strong> {{ village.water_access_pct }}%</p>
+                <p><strong>Electricity Access:</strong> {{ village.electricity_access_pct }}%</p>
+                <p><strong>Schools:</strong> {{ village.school_count }}</p>
+                <p><strong>Hospitals:</strong> {{ village.hospital_count }}</p>
+            </div>
+
+            <div class="detail-section">
+                <h2>Economic Indicators</h2>
+                <p><strong>Poverty Rate:</strong> {{ village.poverty_rate }}%</p>
+                <p><strong>Average Income:</strong> ₹{{ village.avg_income }}</p>
+            </div>
+        </div>
+
+        <a href="dashboard.html" class="btn btn-primary">Back to Dashboard</a>
+    </div>
+    <script type="module" src="{{ url_for('static', filename='js/firebase-config.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+
+</html>
